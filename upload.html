@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌅Miracle-morning!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyArH0sl2K_wiipS0i4RxJJOBeZrxmUZ03M",
+      authDomain: "miracle-morning-8bb63.firebaseapp.com",
+      projectId: "miracle-morning-8bb63",
+      storageBucket: "miracle-morning-8bb63.appspot.com",
+      messagingSenderId: "184112856198",
+      appId: "1:184112856198:web:1ca11a25055ab9cb462507",
+      measurementId: "G-MMMYYY5H2Q"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <nav class="navbar navbar-light" style="background-color: #5D5CC4;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">🌅Miracle-morning</a>
+    </div>
+  </nav>
+
+  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #5D5CC4;" >
+    <div class="container-fluid">
+      <span class="navbar-text">
+        당신의 미라클 모닝 다이어리🤭
+      </span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">전체보기👀</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">공부👩‍💻</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">다이어트💪</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">운동🏃‍♀️</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">독서📚</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">기타🎸</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+      
+  <div class="container mt-3">
+    <input type="text" class="form-control mt-2" id="name" placeholder="닉네임">
+    <textarea class="form-control mt-2" id="content">오늘의 일기</textarea>
+    <input type="text" class="form-control mt-2" id="category" placeholder="카테고리">
+    <input class="form-control mt-2" type="file" id="image">
+    <button class="btn btn-danger mt-3" id="send">올리기</button>
+  </div>
+
+
+  <script>
+
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    $('#send').click(function(){
+
+        var file = document.querySelector('#image').files[0];
+        var storageRef = storage.ref();
+        var 저장할경로 = storageRef.child('image/' + file.name);
+        var 업로드작업 = 저장할경로.put(file)
+
+
+        업로드작업.on( 'state_changed', 
+        // 변화시 동작하는 함수 
+        null, 
+        //에러시 동작하는 함수
+        (error) => {
+        console.error('실패사유는', error);
+        }, 
+        // 성공시 동작하는 함수
+        () => {
+        업로드작업.snapshot.ref.getDownloadURL().then((url) => {
+            console.log('업로드된 경로는', url);
+            
+            var 저장할거 = { 
+                닉네임 : $('#name').val(),
+                카테고리 : $('#category').val(),
+                일기 : $('#content').val(),
+                기록시간 : new Date(),
+                이미지 : url
+            }
+            db.collection('diary').add(저장할거).then((result)=>{
+                console.log(result);
+                // window.location.href = "/index.html";
+            }).catch((err)=>{
+                console.log(err)
+            })
+
+        });
+        }
+    )
+
+
+    });
+
+  </script>
+
+</body>
+</html>
